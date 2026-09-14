@@ -511,7 +511,7 @@ if not st.session_state.logged_in and not st.session_state.get("admin_logged_in"
             st.markdown("---")
             st.markdown("### 📲 Scan & Pay via UPI")
             try: 
-                st.image("qr_code.png", width=200, caption="Gurudev Malakar (8319277922-1@nyes)")
+                st.image("ai iamage for app.jpeg", width=200, caption="Gurudev Malakar (8319277922-1@nyes)")
             except: 
                 st.warning("⚠️ Place 'qr_code.png' in root folder.")
             
