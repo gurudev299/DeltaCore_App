@@ -426,13 +426,28 @@ def check_kill_switch(username, max_daily_loss):
 # ==========================================
 # PUBLIC LANDING & MARKETING PORTAL (PRE-LOGIN)
 # ==========================================
-if not st.session_state.logged_in:
-    st.sidebar.markdown("### ⚡ Founder Quick Access")
-    if st.sidebar.button("🚀 Direct Login as Admin (Bypass)", type="primary"):
-        st.session_state.logged_in = True
-        st.session_state.username = "admin"
-        st.rerun()
-    st.sidebar.markdown("---")
+# # --- SECURE HIDDEN ADMIN PORTAL ---
+with st.sidebar.expander("🔐 Founder Portal"):
+    admin_secret_key = st.text_input("Enter Admin Passcode", type="password")
+    SECRET_ADMIN_PASSWORD = "DeltaCoreAdmin2026" 
+
+    is_admin = False
+
+    if admin_secret_key == SECRET_ADMIN_PASSWORD:
+        st.success("✅ Admin Access Granted")
+        is_admin = True
+    elif admin_secret_key:
+        st.error("❌ Incorrect Passcode")
+
+    if is_admin:
+        st.warning("⚡ **Founder Quick Access Active**")
+        if st.button("Force Admin Bypass"):
+            st.session_state["admin_logged_in"] = True
+            st.success("Bypass Activated successfully!")
+
+
+
+
 
     lang_choice = st.radio("🌐 Choose Language / भाषा चुनें:", ["English", "हिंदी (Hindi)"], horizontal=True)
 
@@ -548,7 +563,7 @@ if not st.session_state.logged_in:
                         st.rerun()
                     else: st.error("गलत विवरण।")
 
-else:
+
     # ==========================================
     # MAIN APP PORTAL (AFTER SUCCESSFUL LOGIN)
     # ==========================================
