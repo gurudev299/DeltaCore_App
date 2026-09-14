@@ -549,31 +549,33 @@ if not st.session_state.logged_in and not st.session_state.get("admin_logged_in"
             try: st.image("qr_code.png", width=200, caption="Gurudev Malakar (8319277922-1@nyes)")
             except: pass
         with public_menu[2]:
-            with st.form("reg_hi"):
-                u = st.text_input("यूजरनेम")
-                p = st.text_input("पासवर्ड", type="password")
-                utr = st.text_input("यूपीआई रेफरेंस / यूटीआर नंबर (भुगतान के बाद दर्ज करें)")
-                if st.form_submit_button("रजिस्टर करें", type="primary"):
+            st.markdown('<p class="section-header">📝 Create Account & Submit UTR</p>', unsafe_allow_html=True)
+            with st.form("reg_en"):
+                u = st.text_input("Username")
+                p = st.text_input("Password", type="password")
+                utr = st.text_input("UPI Reference / UTR Number (Payment ke baad yahan dalein)")
+                if st.form_submit_button("Register & Submit UTR", type="primary"):
                     if not utr.strip():
-                        st.error("कृपया वैध यूटीआर नंबर दर्ज करें।")
+                        st.error("Kripya valid UTR / Transaction ID darj karein.")
                     else:
                         ok, msg = register_pending_user(u.strip(), p.strip(), utr.strip())
                         if ok: st.success(msg)
                         else: st.error(msg)
+
         with public_menu[3]:
-            with st.form("log_hi"):
-                u = st.text_input("यूजरनेम")
-                p = st.text_input("पासवर्ड", type="password")
-                if st.form_submit_button("लॉगिन", type="primary"):
+            st.markdown('<p class="section-header">🔐 Secure Member Login</p>', unsafe_allow_html=True)
+            with st.form("log_en"):
+                u = st.text_input("Username")
+                p = st.text_input("Password", type="password")
+                if st.form_submit_button("Login", type="primary"):
                     rec = get_user_record(u)
                     if rec and rec['Password'] == hash_password(p):
                         if rec['PaymentStatus'] == "Paid":
                             st.session_state.logged_in = True
                             st.session_state.username = u
                             st.rerun()
-                        else: st.warning("भुगतान सत्यापन लंबित है।")
-                    else: st.error("गलत विवरण।")
-
+                        else: st.warning("⏳ Payment verification pending. Admin approval ka intezaار karein.")
+                    else: st.error("Invalid credentials.")
 else:
     # ==========================================
     # MAIN APP PORTAL (AFTER SUCCESSFUL LOGIN)
