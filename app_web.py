@@ -450,7 +450,7 @@ if not st.session_state.logged_in and not st.session_state.get("admin_logged_in"
 
             st.markdown("---")
             st.markdown("### 📲 Scan & Pay via UPI")
-            try: st.image("qr_code.png", width=200, caption="Gurudev Malakar (8319277922-1@nyes)")
+            try: st.image("deltacoreApp.jpeg", width=200, caption="Gurudev Malakar (8319277922-1@nyes)")
             except: st.warning("⚠️ Place 'qr_code.png' in root folder.")
             st.info("💡 **Instructions:** Payment karne ke baad apna UTR / Transaction ID registration form me daal kar register karein.")
 
