@@ -458,23 +458,64 @@ if not st.session_state.logged_in and not st.session_state.get("admin_logged_in"
             </div>
             """, unsafe_allow_html=True)
 
-        with public_menu[1]:
-            st.markdown('<p class="section-header">💎 Direct UPI QR Code Payment (Gurudev Malakar)</p>', unsafe_allow_html=True)
-            try: st.image("ai iamage for app.jpeg", width=200, caption="Gurudev Malakar (8319277922-1@nyes)")
-            except: st.warning("⚠️ Place 'qr_code.png' in root folder.")
-        with public_menu[2]:
-            st.markdown('<p class="section-header">📝 Create Account & Submit UTR</p>', unsafe_allow_html=True)
-            with st.form("reg_en"):
-                u = st.text_input("Username")
-                p = st.text_input("Password", type="password")
-                utr = st.text_input("UPI Reference / UTR Number (Payment ke baad yahan dalein)")
-                if st.form_submit_button("Register & Submit UTR", type="primary"):
-                    if not utr.strip():
-                        st.error("Kripya valid UTR / Transaction ID darj karein.")
-                    else:
-                        ok, msg = register_pending_user(u.strip(), p.strip(), utr.strip())
-                        if ok: st.success(msg)
-                        else: st.error(msg)
+       with public_menu[1]:
+            st.markdown('<p class="section-header">💎 DeltaCore Membership Plans & QR Payment</p>', unsafe_allow_html=True)
+            
+            st.markdown("### 🌟 Trial & Testing Tiers")
+            col_t1, col_t2, col_t3 = st.columns(3)
+            with col_t1:
+                st.markdown("""
+                <div class="pricing-card">
+                    <h3>⚡ Trial - Week 1</h3>
+                    <h2 style="color: #38BDF8;">₹99 <span style="font-size: 14px; color: #94A3B8;">/ 1 Week</span></h2>
+                    <p>✅ Basic Desk Access<br>✅ Intraday Signals<br>✅ Quick Testing Plan</p>
+                </div>
+                """, unsafe_allow_html=True)
+            with col_t2:
+                st.markdown("""
+                <div class="pricing-card" style="border-color: #38BDF8;">
+                    <h3>⚡ Trial - Week 2</h3>
+                    <h2 style="color: #38BDF8;">₹199 <span style="font-size: 14px; color: #94A3B8;">/ 2 Weeks</span></h2>
+                    <p>✅ Extended Testing<br>✅ Hybrid Signals<br>✅ Option Chain Access</p>
+                </div>
+                """, unsafe_allow_html=True)
+            with col_t3:
+                st.markdown("""
+                <div class="pricing-card" style="border-color: #38BDF8;">
+                    <h3>⚡ Trial - Month 1</h3>
+                    <h2 style="color: #38BDF8;">₹299 <span style="font-size: 14px; color: #94A3B8;">/ 1 Month</span></h2>
+                    <p>✅ Full Trial Period<br>✅ All Basic Features<br>✅ Smart Journaling</p>
+                </div>
+                """, unsafe_allow_html=True)
+
+            st.markdown("---")
+            st.markdown("### 🚀 Professional & Pro Tiers")
+            col_p1, col_p2 = st.columns(2)
+            with col_p1:
+                st.markdown("""
+                <div class="pricing-card">
+                    <h3>🔥 Premium Pass</h3>
+                    <h2 style="color: #38BDF8;">₹999</h2>
+                    <p>✅ Full Hybrid Trading Desk<br>✅ Live Option Chain & PCR Matrix<br>✅ AI Post-Mortem Analytics</p>
+                </div>
+                """, unsafe_allow_html=True)
+            with col_p2:
+                st.markdown("""
+                <div class="pricing-card" style="border-color: #10B981;">
+                    <h3>🚀 Pro Terminal</h3>
+                    <h2 style="color: #10B981;">₹2,999</h2>
+                    <p>✅ Everything in Premium<br>✅ Priority Execution Engine<br>✅ Advanced Risk Controls & Kill-Switch</p>
+                </div>
+                """, unsafe_allow_html=True)
+
+            st.markdown("---")
+            st.markdown("### 📲 Scan & Pay via UPI")
+            try: 
+                st.image("qr_code.png", width=200, caption="Gurudev Malakar (8319277922-1@nyes)")
+            except: 
+                st.warning("⚠️ Place 'qr_code.png' in root folder.")
+            
+            st.info("💡 **Instructions:** Payment karne ke baad apna UTR / Transaction ID registration form me daal kar register karein.")
         with public_menu[3]:
             st.markdown('<p class="section-header">🔐 Secure Member Login</p>', unsafe_allow_html=True)
             with st.form("log_en"):
