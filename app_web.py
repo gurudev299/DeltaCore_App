@@ -182,6 +182,7 @@ def init_db():
             password TEXT NOT NULL,
             expiry_date TEXT NOT NULL,
             payment_status TEXT NOT NULL,
+            utr_number TEXT,
             referral_done BOOLEAN,
             feedback_done BOOLEAN
         )
@@ -211,8 +212,8 @@ def init_db():
         year_later = (datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d")
         two_weeks = (datetime.now() + timedelta(days=14)).strftime("%Y-%m-%d")
         
-        cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)", ("admin", admin_pass, year_later, "Paid", True, True))
-        cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)", ("tester", tester_pass, two_weeks, "Paid", False, False))
+        cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?)", ("admin", admin_pass, year_later, "Paid", "DIRECT_ADMIN", True, True))
+        cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?)", ("tester", tester_pass, two_weeks, "Paid", "TEST_UTR", False, False))
         conn.commit()
     
     conn.close()
@@ -222,7 +223,7 @@ init_db()
 def get_user_record(username):
     conn = sqlite3.connect(DB_NAME, timeout=10)
     cursor = conn.cursor()
-    cursor.execute("SELECT username, password, expiry_date, payment_status, referral_done, feedback_done FROM users WHERE username = ?", (username,))
+    cursor.execute("SELECT username, password, expiry_date, payment_status, utr_number, referral_done, feedback_done FROM users WHERE username = ?", (username,))
     row = cursor.fetchone()
     conn.close()
     if row:
@@ -231,12 +232,13 @@ def get_user_record(username):
             "Password": row[1],
             "ExpiryDate": row[2],
             "PaymentStatus": row[3],
-            "ReferralDone": bool(row[4]),
-            "FeedbackDone": bool(row[5])
+            "UTR": row[4],
+            "ReferralDone": bool(row[5]),
+            "FeedbackDone": bool(row[6])
         }
     return None
 
-def register_pending_user(username, password):
+def register_pending_user(username, password, utr_number):
     conn = sqlite3.connect(DB_NAME, timeout=10)
     cursor = conn.cursor()
     cursor.execute("SELECT username FROM users WHERE username = ?", (username,))
@@ -246,10 +248,19 @@ def register_pending_user(username, password):
     
     hashed_pwd = hash_password(password)
     today_str = datetime.now().strftime("%Y-%m-%d")
-    cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)", (username, hashed_pwd, today_str, "Pending", False, False))
+    cursor.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?)", (username, hashed_pwd, today_str, "Pending", utr_number, False, False))
     conn.commit()
     conn.close()
-    return True, "Registered successfully. Kripya QR scan karke payment complete karein."
+    return True, "Registered successfully! Admin verification ke baad account activate kar diya jayega."
+
+def activate_user_subscription(username, days=14):
+    conn = sqlite3.connect(DB_NAME, timeout=10)
+    cursor = conn.cursor()
+    new_expiry = (datetime.now() + timedelta(days=days)).strftime("%Y-%m-%d")
+    cursor.execute("UPDATE users SET expiry_date = ?, payment_status = 'Paid' WHERE username = ?", (new_expiry, username))
+    conn.commit()
+    conn.close()
+    return new_expiry
 
 def update_user_extension(username, add_days):
     conn = sqlite3.connect(DB_NAME, timeout=10)
@@ -350,7 +361,7 @@ def check_kill_switch(username, max_daily_loss):
 
 
 # ==========================================
-# SECURE HIDDEN ADMIN PORTAL (SIDEBAR)
+# SECURE HIDDEN ADMIN PORTAL & APPROVALS
 # ==========================================
 with st.sidebar.expander("🔐 Founder Portal"):
     admin_secret_key = st.text_input("Enter Admin Passcode", type="password")
@@ -366,6 +377,25 @@ with st.sidebar.expander("🔐 Founder Portal"):
 
     if is_admin:
         st.warning("⚡ **Founder Quick Access Active**")
+        
+        # Pending Users Management & One-Click Approval Section
+        st.markdown("---")
+        st.markdown("### 📋 Pending User Approvals")
+        conn = sqlite3.connect(DB_NAME, timeout=10)
+        pending_df = pd.read_sql_query("SELECT username, utr_number FROM users WHERE payment_status = 'Pending'", conn)
+        conn.close()
+
+        if not pending_df.empty:
+            for idx, row in pending_df.iterrows():
+                st.write(f"👤 **{row['username']}** | UTR: `{row['utr_number']}`")
+                if st.button(f"Approve {row['username']}", key=f"app_btn_{row['username']}"):
+                    activate_user_subscription(row['username'], 14)
+                    st.success(f"✅ {row['username']} approved successfully!")
+                    st.rerun()
+        else:
+            st.info("No pending users found.")
+
+        st.markdown("---")
         if st.button("Force Admin Bypass"):
             st.session_state["admin_logged_in"] = True
             st.session_state.logged_in = True
@@ -430,17 +460,21 @@ if not st.session_state.logged_in and not st.session_state.get("admin_logged_in"
 
         with public_menu[1]:
             st.markdown('<p class="section-header">💎 Direct UPI QR Code Payment (Gurudev Malakar)</p>', unsafe_allow_html=True)
-            try: st.image("ai iamage for app.jpeg", width=200, caption="Gurudev Malakar (8319277922-1@nyes)")
+            try: st.image("qr_code.png", width=200, caption="Gurudev Malakar (8319277922-1@nyes)")
             except: st.warning("⚠️ Place 'qr_code.png' in root folder.")
         with public_menu[2]:
-            st.markdown('<p class="section-header">📝 Create Account</p>', unsafe_allow_html=True)
+            st.markdown('<p class="section-header">📝 Create Account & Submit UTR</p>', unsafe_allow_html=True)
             with st.form("reg_en"):
                 u = st.text_input("Username")
                 p = st.text_input("Password", type="password")
-                if st.form_submit_button("Register", type="primary"):
-                    ok, msg = register_pending_user(u.strip(), p.strip())
-                    if ok: st.success("Registered!")
-                    else: st.error(msg)
+                utr = st.text_input("UPI Reference / UTR Number (Payment ke baad yahan dalein)")
+                if st.form_submit_button("Register & Submit UTR", type="primary"):
+                    if not utr.strip():
+                        st.error("Kripya valid UTR / Transaction ID darj karein.")
+                    else:
+                        ok, msg = register_pending_user(u.strip(), p.strip(), utr.strip())
+                        if ok: st.success(msg)
+                        else: st.error(msg)
         with public_menu[3]:
             st.markdown('<p class="section-header">🔐 Secure Member Login</p>', unsafe_allow_html=True)
             with st.form("log_en"):
@@ -453,7 +487,7 @@ if not st.session_state.logged_in and not st.session_state.get("admin_logged_in"
                             st.session_state.logged_in = True
                             st.session_state.username = u
                             st.rerun()
-                        else: st.warning("Payment pending verification.")
+                        else: st.warning("⏳ Payment verification pending. Admin approval ka intezaar karein.")
                     else: st.error("Invalid credentials.")
     else:
         st.markdown('<p class="sub-title">संस्थागत स्तर का निफ्टी ऑप्शन बाइंग और ऑटोनॉमस इंटेलिजेंस कमांड सेंटर</p>', unsafe_allow_html=True)
@@ -471,16 +505,20 @@ if not st.session_state.logged_in and not st.session_state.get("admin_logged_in"
             </div>
             """, unsafe_allow_html=True)
         with public_menu[1]:
-            try: st.image("qr_code.png", width=200)
+            try: st.image("qr_code.png", width=200, caption="Gurudev Malakar (8319277922-1@nyes)")
             except: pass
         with public_menu[2]:
             with st.form("reg_hi"):
                 u = st.text_input("यूजरनेम")
                 p = st.text_input("पासवर्ड", type="password")
-                if st.form_submit_button("रजिस्टर", type="primary"):
-                    ok, msg = register_pending_user(u.strip(), p.strip())
-                    if ok: st.success("सफल!")
-                    else: st.error(msg)
+                utr = st.text_input("यूपीआई रेफरेंस / यूटीआर नंबर (भुगतान के बाद दर्ज करें)")
+                if st.form_submit_button("रजिस्टर करें", type="primary"):
+                    if not utr.strip():
+                        st.error("कृपया वैध यूटीआर नंबर दर्ज करें।")
+                    else:
+                        ok, msg = register_pending_user(u.strip(), p.strip(), utr.strip())
+                        if ok: st.success(msg)
+                        else: st.error(msg)
         with public_menu[3]:
             with st.form("log_hi"):
                 u = st.text_input("यूजरनेम")
@@ -488,9 +526,11 @@ if not st.session_state.logged_in and not st.session_state.get("admin_logged_in"
                 if st.form_submit_button("लॉगिन", type="primary"):
                     rec = get_user_record(u)
                     if rec and rec['Password'] == hash_password(p):
-                        st.session_state.logged_in = True
-                        st.session_state.username = u
-                        st.rerun()
+                        if rec['PaymentStatus'] == "Paid":
+                            st.session_state.logged_in = True
+                            st.session_state.username = u
+                            st.rerun()
+                        else: st.warning("भुगतान सत्यापन लंबित है।")
                     else: st.error("गलत विवरण।")
 
 else:
