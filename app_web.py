@@ -394,7 +394,30 @@ if not st.session_state.logged_in and not st.session_state.get("admin_logged_in"
             st.markdown("""
             <div class="content-card">
                 <h3>1. Platform Philosophy & Quantitative Framework</h3>
-                <p><b>DeltaCore</b> is engineered not as a simple script, but as an <b>Institutional Quantitative Framework</b> designed specifically for professional Nifty option buyers.</p>
+                <p><b>DeltaCore</b> is engineered not as a simple script, but as an <b>Institutional Quantitative Framework</b> designed specifically for professional Nifty option buyers. Retail traders frequently suffer capital erosion due to emotional biases, fragmented data streams, and poor risk control. DeltaCore solves this by unifying live price action with institutional derivative telemetry into a single, cohesive command center.</p>
+            </div>
+            
+            <div class="content-card">
+                <h3>2. The Hybrid Intelligence Engine (Chart + Derivatives)</h3>
+                <p>Traditional platforms separate charts from option chains. DeltaCore’s <b>Hybrid Engine</b> bridges this gap seamlessly:</p>
+                <ul>
+                    <li><b>Momentum & Price Action:</b> Real-time TradingView feed captures immediate trend and intraday directional bias.</li>
+                    <li><b>Open Interest (OI) & PCR Matrix:</b> Evaluates Put-Call Ratio and institutional writer build-ups to filter out false breakouts.</li>
+                    <li><b>Autonomous Calculations:</b> Automatically computes optimal ATM/ITM strike contracts, execution prices, targets, and protective stop-losses.</li>
+                </ul>
+            </div>
+
+            <div class="content-card">
+                <h3>3. Psychological Guardrails & Risk Management</h3>
+                <ul>
+                    <li><b>Hard-Lock Kill-Switch:</b> Instantly freezes trading activity if pre-set maximum daily loss thresholds are breached, preventing revenge trading.</li>
+                    <li><b>Theta Decay Duration Timer:</b> Actively monitors trade duration in the market to combat time decay in options buying.</li>
+                </ul>
+            </div>
+
+            <div class="content-card">
+                <h3>4. AI Post-Mortem P&L Analytics & Smart Journaling</h3>
+                <p>Every closed position triggers our automated analytics engine to generate a <b>Scientific Post-Mortem Report</b>. It breaks down performance based on option chain PCR support, momentum shifts, and theta decay impact—helping you evolve into a consistently profitable trader.</p>
             </div>
             """, unsafe_allow_html=True)
 
