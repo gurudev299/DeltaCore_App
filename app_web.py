@@ -246,26 +246,34 @@ def update_user_extension(username, add_days):
 # ==========================================
 # HELPER: MARKET & OPTION CHAIN ENGINE
 # ==========================================
-@st.cache_data(ttl=15)
+@st.cache_data(ttl=10)
 def fetch_market_and_option_chain():
     try:
         ticker = yf.Ticker("^NSEI")
-        live_df = ticker.history(period="1d", interval="5m")
-        spot_price = live_df['Close'].iloc[-1] if not live_df.empty else 23250.0
-        open_price = live_df['Open'].iloc[0] if not live_df.empty else spot_price
-        intraday_change = spot_price - open_price
-        
+        live_df = ticker.history(period="2d", interval="5m")
+        if live_df.empty:
+            live_df = ticker.history(period="1d", interval="5m")
+            
+        if not live_df.empty:
+            spot_price = float(live_df['Close'].iloc[-1])
+            open_price = float(live_df['Open'].iloc[0])
+            intraday_change = spot_price - open_price
+        else:
+            spot_price = 23250.0
+            intraday_change = 0.0
+            
         atm = round(spot_price / 50) * 50
         pcr_ratio = 1.15 if intraday_change >= 0 else 0.82
         
         return {
-            "spot": float(spot_price),
-            "change": float(intraday_change),
+            "spot": spot_price,
+            "change": intraday_change,
             "atm": int(atm),
             "pcr": float(pcr_ratio),
             "bias": "BULLISH 🟢" if intraday_change >= 0 else "BEARISH 🔴"
         }
-    except:
+    except Exception as e:
+        print(f"Error fetching market data: {e}")
         return {
             "spot": 23250.0,
             "change": -25.0,
