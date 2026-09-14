@@ -541,6 +541,18 @@ if not st.session_state.logged_in and not st.session_state.get("admin_logged_in"
                 <p>हर बंद पोजीशन का वैज्ञानिक विश्लेषण करके एक विस्तृत रिपोर्ट जनरेट होती है, जिससे आप एक लगातार मुनाफे वाले ट्रेडर्स बन सकें।</p>
             </div>
             """, unsafe_allow_html=True)
+
+
+            st.markdown("""
+            <div style="background-color: #0F172A; border: 1px solid #334155; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                <p style="color: #94A3B8; font-size: 12px; line-height: 1.5; margin: 0;">
+                <b>⚠️ सेबी अस्वीकरण और जोखिम चेतावनी (SEBI Disclaimer):</b> डेल्टाकोर केवल शैक्षिक और विश्लेषणात्मक उद्देश्यों के लिए एक संस्थागत एनालिटिक्स फ्रेमवर्क है। ऑप्शन बाइंग में पूंजी हानि का बड़ा जोखिम होता है। हम सेबी-पंजीकृत वित्तीय सलाहकार नहीं हैं। कृपया कोई भी ट्रेड करने से पहले अपने वित्तीय सलाहकार से सलाह लें।
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+
+
+
         with public_menu[1]:
             st.markdown('<p class="section-header">💎 मेंबरशिप प्लान्स और क्यूआर भुगतान</p>', unsafe_allow_html=True)
             try: st.image("deltacoreApp.jpeg", width=200, caption="Gurudev Malakar (8319277922-1@nyes)")
