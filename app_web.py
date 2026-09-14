@@ -421,6 +421,15 @@ if not st.session_state.logged_in and not st.session_state.get("admin_logged_in"
             </div>
             """, unsafe_allow_html=True)
 
+
+            st.markdown("""
+            <div style="background-color: #0F172A; border: 1px solid #334155; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                <p style="color: #94A3B8; font-size: 12px; line-height: 1.5; margin: 0;">
+                <b>⚠️ SEBI Disclaimer & Risk Warning:</b> DeltaCore is an institutional analytics framework for educational and analytical purposes only. Option buying involves substantial risk of capital loss. We are not SEBI-registered financial advisors. Please consult your financial advisor before executing trades.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+
         with public_menu[1]:
             st.markdown('<p class="section-header">💎 DeltaCore Membership Plans & QR Payment</p>', unsafe_allow_html=True)
             
