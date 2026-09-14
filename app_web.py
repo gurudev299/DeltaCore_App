@@ -458,7 +458,7 @@ if not st.session_state.logged_in and not st.session_state.get("admin_logged_in"
             </div>
             """, unsafe_allow_html=True)
 
-       with public_menu[1]:
+        with public_menu[1]:
             st.markdown('<p class="section-header">💎 DeltaCore Membership Plans & QR Payment</p>', unsafe_allow_html=True)
             
             st.markdown("### 🌟 Trial & Testing Tiers")
