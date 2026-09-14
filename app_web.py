@@ -110,50 +110,6 @@ st.markdown("""
             line-height: 1.6;
         }
 
-        .fomo-banner {
-            background: linear-gradient(135deg, #7F1D1D, #991B1B);
-            padding: 22px;
-            border-radius: 12px;
-            border: 2px dashed #F87171;
-            text-align: center;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(127, 29, 29, 0.4);
-        }
-
-        .referral-highlight {
-            background: linear-gradient(135deg, #065F46, #047857);
-            padding: 20px;
-            border-radius: 12px;
-            border: 2px solid #34D399;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .pricing-card {
-            background-color: #1E293B;
-            padding: 25px;
-            border-radius: 12px;
-            border: 1px solid #334155;
-            text-align: center;
-            margin-bottom: 15px;
-            transition: transform 0.2s ease;
-        }
-        
-        .pricing-card:hover {
-            border-color: #38BDF8;
-            transform: translateY(-3px);
-        }
-        
-        .qr-box {
-            background-color: #0F172A;
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid #38BDF8;
-            text-align: center;
-            margin-top: 15px;
-            margin-bottom: 15px;
-        }
-
         /* Sidebar Styling */
         div[data-testid="stSidebar"] {
             background-color: #0B0F19;
@@ -200,6 +156,8 @@ if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 if 'username' not in st.session_state:
     st.session_state.username = ""
+if 'admin_logged_in' not in st.session_state:
+    st.session_state.admin_logged_in = False
 if 'trade_active' not in st.session_state:
     st.session_state.trade_active = False
 if 'entry_timestamp' not in st.session_state:
@@ -293,20 +251,6 @@ def register_pending_user(username, password):
     conn.close()
     return True, "Registered successfully. Kripya QR scan karke payment complete karein."
 
-def activate_user_subscription(username, days=14):
-    conn = sqlite3.connect(DB_NAME, timeout=10)
-    cursor = conn.cursor()
-    cursor.execute("SELECT username FROM users WHERE username = ?", (username,))
-    if not cursor.fetchone():
-        conn.close()
-        return None
-    
-    new_expiry = (datetime.now() + timedelta(days=days)).strftime("%Y-%m-%d")
-    cursor.execute("UPDATE users SET expiry_date = ?, payment_status = 'Paid' WHERE username = ?", (new_expiry, username))
-    conn.commit()
-    conn.close()
-    return new_expiry
-
 def update_user_extension(username, add_days):
     conn = sqlite3.connect(DB_NAME, timeout=10)
     cursor = conn.cursor()
@@ -322,20 +266,6 @@ def update_user_extension(username, add_days):
         return new_expiry_str
     conn.close()
     return None
-
-def reset_user_password(username, new_password):
-    conn = sqlite3.connect(DB_NAME, timeout=10)
-    cursor = conn.cursor()
-    cursor.execute("SELECT username FROM users WHERE username = ?", (username,))
-    if not cursor.fetchone():
-        conn.close()
-        return False, "Username nahi mila."
-    
-    hashed_pwd = hash_password(new_password)
-    cursor.execute("UPDATE users SET password = ? WHERE username = ?", (hashed_pwd, username))
-    conn.commit()
-    conn.close()
-    return True, "Password successfully reset ho gaya hai!"
 
 
 # ==========================================
@@ -396,10 +326,6 @@ def send_telegram_signal_alert(bot_token, chat_id, message):
     except:
         return False
 
-
-# ==========================================
-# HELPER: KILL SWITCH STATUS CHECK
-# ==========================================
 def check_kill_switch(username, max_daily_loss):
     today_date = datetime.now().strftime("%Y-%m-%d")
     conn = sqlite3.connect(DB_NAME, timeout=10)
@@ -424,9 +350,8 @@ def check_kill_switch(username, max_daily_loss):
 
 
 # ==========================================
-# PUBLIC LANDING & MARKETING PORTAL (PRE-LOGIN)
+# SECURE HIDDEN ADMIN PORTAL (SIDEBAR)
 # ==========================================
-# # --- SECURE HIDDEN ADMIN PORTAL ---
 with st.sidebar.expander("🔐 Founder Portal"):
     admin_secret_key = st.text_input("Enter Admin Passcode", type="password")
     SECRET_ADMIN_PASSWORD = "DeltaCoreAdmin2026" 
@@ -443,13 +368,18 @@ with st.sidebar.expander("🔐 Founder Portal"):
         st.warning("⚡ **Founder Quick Access Active**")
         if st.button("Force Admin Bypass"):
             st.session_state["admin_logged_in"] = True
+            st.session_state.logged_in = True
+            st.session_state.username = "admin"
             st.success("Bypass Activated successfully!")
+            st.rerun()
 
 
-
-
-
-    lang_choice = st.radio("🌐 Choose Language / भाषा चुनें:", ["English", "हिंदी (Hindi)"], horizontal=True)
+# ==========================================
+# MAIN APP ROUTING (LOGIN CHECK OR DASHBOARD)
+# ==========================================
+if not st.session_state.logged_in and not st.session_state.get("admin_logged_in", False):
+    
+    lang_choice = st.sidebar.radio("🌐 Choose Language / भाषा चुनें:", ["English", "हिंदी (Hindi)"], horizontal=True)
 
     st.markdown("""
         <div class="brand-container">
@@ -563,12 +493,14 @@ with st.sidebar.expander("🔐 Founder Portal"):
                         st.rerun()
                     else: st.error("गलत विवरण।")
 
-
+else:
     # ==========================================
     # MAIN APP PORTAL (AFTER SUCCESSFUL LOGIN)
     # ==========================================
-    user_record = get_user_record(st.session_state.username)
-    days_left = (datetime.strptime(str(user_record['ExpiryDate']), "%Y-%m-%d") - datetime.now()).days if user_record else 0
+    active_user = st.session_state.username if st.session_state.username else "admin"
+    user_record = get_user_record(active_user)
+    expiry_str = user_record['ExpiryDate'] if user_record else (datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d")
+    days_left = (datetime.strptime(str(expiry_str), "%Y-%m-%d") - datetime.now()).days
 
     st.markdown("""
         <div class="brand-container">
@@ -580,7 +512,7 @@ with st.sidebar.expander("🔐 Founder Portal"):
             </div>
         </div>
     """, unsafe_allow_html=True)
-    st.markdown(f'<p class="sub-title">Welcome, <b>{st.session_state.username}</b> | Plan Valid Till: <b>{user_record["ExpiryDate"] if user_record else "N/A"} ({max(0, days_left)} Days Left)</b></p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="sub-title">Welcome, <b>{active_user}</b> | Plan Valid Till: <b>{expiry_str} ({max(0, days_left)} Days Left)</b></p>', unsafe_allow_html=True)
 
     st.sidebar.markdown("## ⚡ **DELTACORE PORTAL**")
     menu = st.sidebar.radio(
@@ -606,6 +538,7 @@ with st.sidebar.expander("🔐 Founder Portal"):
     
     if st.sidebar.button("🚪 Logout", type="secondary"):
         st.session_state.logged_in = False
+        st.session_state.admin_logged_in = False
         st.session_state.username = ""
         st.rerun()
 
@@ -623,7 +556,7 @@ with st.sidebar.expander("🔐 Founder Portal"):
         max_risk_per_trade = st.sidebar.number_input("Max Risk Per Trade (₹)", min_value=500.0, value=1000.0, step=100.0)
         max_daily_loss = st.sidebar.number_input("🚨 Daily Kill-Switch Loss Limit (₹)", min_value=1000.0, value=2500.0, step=500.0)
 
-        is_locked, current_day_pnl = check_kill_switch(st.session_state.username, max_daily_loss)
+        is_locked, current_day_pnl = check_kill_switch(active_user, max_daily_loss)
 
         if is_locked:
             st.error(f"🚨 **KILL-SWITCH ACTIVATED!** Loss limit (₹{max_daily_loss}) cross ho chuki hai. Trading locked.")
@@ -721,7 +654,7 @@ with st.sidebar.expander("🔐 Founder Portal"):
                             INSERT INTO trades (username, timestamp, contract, lots, buy_price, sell_price, duration, exit_reason, pnl, status, explanation)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         """, (
-                            st.session_state.username,
+                            active_user,
                             st.session_state.entry_timestamp.strftime("%Y-%m-%d %H:%M"),
                             trade_info['strike'], trade_info['lots'], trade_info['buy'], exit_price,
                             f"{duration_mins} mins", exit_reason, round(pnl, 2),
@@ -771,17 +704,17 @@ with st.sidebar.expander("🔐 Founder Portal"):
     # ==========================================
     elif menu == "🎁 Refer & Earn 25 Days Free":
         st.header("🎁 Refer & Earn: Get 25 Trading Days Free!")
-        user_rec = get_user_record(st.session_state.username)
+        user_rec = get_user_record(active_user)
         col_r1, col_r2 = st.columns(2)
         with col_r1:
-            st.code(f"https://deltacore-terminal.streamlit.app/?ref={st.session_state.username}")
+            st.code(f"https://deltacoreapp-terminal.streamlit.app/?ref={active_user}")
             ref_done = st.checkbox("Referral completed ✅", value=user_rec.get('ReferralDone', False) if user_rec else False)
         with col_r2:
             st.text_area("Feedback:")
             fb_done = st.checkbox("Feedback submitted ✅", value=user_rec.get('FeedbackDone', False) if user_rec else False)
         if st.button("🚀 Claim 25 Days Free", type="primary"):
             if ref_done and fb_done:
-                new_date = update_user_extension(st.session_state.username, 25)
+                new_date = update_user_extension(active_user, 25)
                 st.success(f"🎉 Account extended till {new_date}!")
                 st.balloons()
             else:
@@ -808,7 +741,7 @@ with st.sidebar.expander("🔐 Founder Portal"):
     elif menu == "📝 Trade Journal & P&L":
         st.header("📝 DeltaCore Performance Journal & Explanations")
         conn = sqlite3.connect(DB_NAME, timeout=10)
-        df_saved = pd.read_sql_query("SELECT timestamp, contract, lots, buy_price, sell_price, duration, exit_reason, pnl, status, explanation FROM trades WHERE username = ?", conn, params=(st.session_state.username,))
+        df_saved = pd.read_sql_query("SELECT timestamp, contract, lots, buy_price, sell_price, duration, exit_reason, pnl, status, explanation FROM trades WHERE username = ?", conn, params=(active_user,))
         conn.close()
         
         if not df_saved.empty:
