@@ -497,7 +497,7 @@ if not st.session_state.logged_in and not st.session_state.get("admin_logged_in"
             
         with public_menu[1]:
             st.markdown('<p class="section-header">💎 मेंबरशिप प्लान्स और क्यूआर भुगतान</p>', unsafe_allow_html=True)
-            try: st.image("qr_code.png", width=200, caption="Gurudev Malakar (8319277922-1@nyes)")
+            try: st.image("deltacoreApp.jpeg", width=200, caption="Gurudev Malakar (8319277922-1@nyes)")
             except: st.warning("⚠️ QR Code image not found.")
             
         with public_menu[2]:
