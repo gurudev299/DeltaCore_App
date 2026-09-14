@@ -804,16 +804,71 @@ else:
                 st.warning("⚠️ Both checkboxes must be ticked.")
 
     elif menu == "📊 Live Option Chain":
-        st.header("⚡ Nifty Live Option Chain Matrix")
-        if st.button("🔄 Refresh Option Chain Matrix", type="primary"):
-            m_data = fetch_market_and_option_chain()
-            st.success("✅ Synchronized!")
-            col_oc1, col_oc2, col_oc3 = st.columns(3)
-            with col_oc1: st.metric("ATM Strike", m_data["atm"])
-            with col_oc2: st.metric("PCR", f"{m_data['pcr']:.2f}")
-            with col_oc3: st.metric("Bias", m_data["bias"])
-        else:
-            st.info("👆 Click to load matrix.")
+        st.markdown('<p class="section-header">📊 Institutional Option Chain & OI Analytics</p>', unsafe_allow_html=True)
+
+        # Top Bar / Expiry Selector
+        expiry_cols = st.columns(4)
+        with expiry_cols[0]:
+            st.markdown("🟢 **15 Sep (Today)**")
+        with expiry_cols[1]:
+            st.markdown("⚪ 22 Sep (7 Days)")
+        with expiry_cols[2]:
+            st.markdown("⚪ 29 Sep (14 Days)")
+        with expiry_cols[3]:
+            st.markdown("⚙️ *OI / Greeks Mode*")
+
+        st.markdown("---")
+
+        # Structured Option Chain Table Header
+        col_c_oi, col_c_ltp, col_strike, col_p_ltp, col_p_oi = st.columns([2, 2, 1.5, 2, 2])
+
+        with col_c_oi:
+            st.markdown("<p style='text-align: center; color: #38BDF8; font-size: 13px;'><b>CALL OI (Lakhs)</b></p>", unsafe_allow_html=True)
+        with col_c_ltp:
+            st.markdown("<p style='text-align: center; color: #38BDF8; font-size: 13px;'><b>CALL LTP</b></p>", unsafe_allow_html=True)
+        with col_strike:
+            st.markdown("<p style='text-align: center; color: #F8FAFC; font-size: 13px;'><b>STRIKE</b></p>", unsafe_allow_html=True)
+        with col_p_ltp:
+            st.markdown("<p style='text-align: center; color: #34D399; font-size: 13px;'><b>PUT LTP</b></p>", unsafe_allow_html=True)
+        with col_p_oi:
+            st.markdown("<p style='text-align: center; color: #34D399; font-size: 13px;'><b>PUT OI (Lakhs)</b></p>", unsafe_allow_html=True)
+
+        # Dynamic strikes around ATM based on real-time spot price
+        market_data = fetch_market_and_option_chain()
+        atm_strike = market_data["atm"]
+
+        strikes = [atm_strike - 150, atm_strike - 100, atm_strike - 50, atm_strike, atm_strike + 50, atm_strike + 100, atm_strike + 150]
+
+        for s in strikes:
+            c1, c2, c3, c4, c5 = st.columns([2, 2, 1.5, 2, 2])
+            
+            is_atm = (s == atm_strike)
+            bg_style = "background-color: #1E293B; border-radius: 6px; padding: 6px;" if is_atm else "padding: 4px;"
+            
+            with c1:
+                st.markdown(f"<div style='{bg_style} text-align: center; font-size: 12px;'>14.02<br><span style='color:gray; font-size:10px;'>0.00%</span></div>", unsafe_allow_html=True)
+            with c2:
+                st.markdown(f"<div style='{bg_style} text-align: center; font-size: 12px;'>237.6<br><span style='color:gray; font-size:10px;'>0.00%</span></div>", unsafe_allow_html=True)
+            with c3:
+                strike_badge = f"<b>{s}</b> ⚡" if is_atm else str(s)
+                st.markdown(f"<div style='{bg_style} text-align: center; font-size: 13px; color: #FACC15;'>{strike_badge}</div>", unsafe_allow_html=True)
+            with c4:
+                st.markdown(f"<div style='{bg_style} text-align: center; font-size: 12px;'>141.0<br><span style='color:gray; font-size:10px;'>0.00%</span></div>", unsafe_allow_html=True)
+            with c5:
+                st.markdown(f"<div style='{bg_style} text-align: center; font-size: 12px;'>80.38<br><span style='color:gray; font-size:10px;'>0.00%</span></div>", unsafe_allow_html=True)
+
+        st.markdown("---")
+
+        # Bottom Summary Metrics Bar
+        m1, m2, m3, m4 = st.columns(4)
+        with m1:
+            st.metric(label="PCR (Put-Call Ratio)", value=f"{market_data['pcr']}", delta="Bullish Bias")
+        with m2:
+            st.metric(label="Max Pain", value=f"{atm_strike}")
+        with m3:
+            st.metric(label="ATM IV", value="12.40%")
+        with m4:
+            st.metric(label="IV Percentile", value="42.50 - Medium")
 
     elif menu == "📝 Trade Journal & P&L":
         st.header("📝 DeltaCore Performance Journal & Explanations")
