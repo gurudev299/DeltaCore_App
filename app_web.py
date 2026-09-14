@@ -97,56 +97,20 @@ st.markdown("""
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
-        .content-card h3 {
-            color: #38BDF8;
-            font-size: 19px;
-            margin-bottom: 12px;
-            font-weight: 700;
-        }
-
-        .content-card p, .content-card li {
-            color: #CBD5E1;
-            font-size: 15px;
-            line-height: 1.6;
+        .pricing-card {
+            background: linear-gradient(145deg, #1E293B, #0F172A);
+            border: 1px solid #334155;
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            margin-bottom: 15px;
         }
 
         /* Sidebar Styling */
         div[data-testid="stSidebar"] {
             background-color: #0B0F19;
             border-right: 1px solid #1E293B;
-        }
-
-        div[data-testid="stSidebar"] .stRadio [data-baseweb="radio"] {
-            background: linear-gradient(145deg, #162032, #1E293B);
-            border: 1px solid #334155;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            padding: 14px 16px;
-            width: 100%;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        div[data-testid="stSidebar"] .stRadio [data-baseweb="radio"]:hover {
-            background: linear-gradient(145deg, #1E293B, #253349);
-            border-color: #38BDF8;
-            transform: translateX(4px);
-            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2);
-        }
-
-        div[data-testid="stSidebar"] .stRadio input[type="radio"] {
-            display: none;
-        }
-        
-        div[data-testid="stSidebar"] .stRadio div[class*="st-emotion-cache"] {
-            margin-left: 0px !important;
-        }
-
-        div[data-testid="stSidebar"] .stRadio p {
-            font-family: 'Outfit', sans-serif !important;
-            font-size: 15px !important;
-            font-weight: 600 !important;
-            color: #F1F5F9 !important;
-            letter-spacing: 0.5px;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -378,7 +342,6 @@ with st.sidebar.expander("🔐 Founder Portal"):
     if is_admin:
         st.warning("⚡ **Founder Quick Access Active**")
         
-        # Pending Users Management & One-Click Approval Section
         st.markdown("---")
         st.markdown("### 📋 Pending User Approvals")
         conn = sqlite3.connect(DB_NAME, timeout=10)
@@ -424,37 +387,14 @@ if not st.session_state.logged_in and not st.session_state.get("admin_logged_in"
     
     if lang_choice == "English":
         st.markdown('<p class="sub-title">Institutional-Grade Nifty Option Buying & Autonomous Intelligence Command Center</p>', unsafe_allow_html=True)
-        public_menu = st.tabs(["📖 About & Architecture", "💎 Pricing & QR Payment", "📝 Register New Account", "🔐 User Login"])
+        public_menu = st.tabs(["📖 About & Architecture", "💎 Pricing Plans & QR", "📝 Register New Account", "🔐 User Login"])
 
         with public_menu[0]:
             st.markdown('<p class="section-header">🏢 Institutional Architecture & Platform Overview</p>', unsafe_allow_html=True)
             st.markdown("""
             <div class="content-card">
                 <h3>1. Platform Philosophy & Quantitative Framework</h3>
-                <p><b>DeltaCore</b> is engineered not as a simple script, but as an <b>Institutional Quantitative Framework</b> designed specifically for professional Nifty option buyers. Retail traders frequently suffer capital erosion due to emotional biases, fragmented data streams, and poor risk control. DeltaCore solves this by unifying live price action with institutional derivative telemetry into a single, cohesive command center.</p>
-            </div>
-            
-            <div class="content-card">
-                <h3>2. The Hybrid Intelligence Engine (Chart + Derivatives)</h3>
-                <p>Traditional platforms separate charts from option chains. DeltaCore’s <b>Hybrid Engine</b> bridges this gap seamlessly:</p>
-                <ul>
-                    <li><b>Momentum & Price Action:</b> Real-time TradingView feed captures immediate trend and intraday directional bias.</li>
-                    <li><b>Open Interest (OI) & PCR Matrix:</b> Evaluates Put-Call Ratio and institutional writer build-ups to filter out false breakouts.</li>
-                    <li><b>Autonomous Calculations:</b> Automatically computes optimal ATM/ITM strike contracts, execution prices, targets, and protective stop-losses.</li>
-                </ul>
-            </div>
-
-            <div class="content-card">
-                <h3>3. Psychological Guardrails & Risk Management</h3>
-                <ul>
-                    <li><b>Hard-Lock Kill-Switch:</b> Instantly freezes trading activity if pre-set maximum daily loss thresholds are breached, preventing revenge trading.</li>
-                    <li><b>Theta Decay Duration Timer:</b> Actively monitors trade duration in the market to combat time decay in options buying.</li>
-                </ul>
-            </div>
-
-            <div class="content-card">
-                <h3>4. AI Post-Mortem P&L Analytics & Smart Journaling</h3>
-                <p>Every closed position triggers our automated analytics engine to generate a <b>Scientific Post-Mortem Report</b>. It breaks down performance based on option chain PCR support, momentum shifts, and theta decay impact—helping you evolve into a consistently profitable trader.</p>
+                <p><b>DeltaCore</b> is engineered not as a simple script, but as an <b>Institutional Quantitative Framework</b> designed specifically for professional Nifty option buyers.</p>
             </div>
             """, unsafe_allow_html=True)
 
@@ -510,44 +450,10 @@ if not st.session_state.logged_in and not st.session_state.get("admin_logged_in"
 
             st.markdown("---")
             st.markdown("### 📲 Scan & Pay via UPI")
-            try: 
-                st.image("ai iamage for app.jpeg", width=200, caption="Gurudev Malakar (8319277922-1@nyes)")
-            except: 
-                st.warning("⚠️ Place 'qr_code.png' in root folder.")
-            
-            st.info("💡 **Instructions:** Payment karne ke baad apna UTR / Transaction ID registration form me daal kar register karein.")
-        with public_menu[3]:
-            st.markdown('<p class="section-header">🔐 Secure Member Login</p>', unsafe_allow_html=True)
-            with st.form("log_en"):
-                u = st.text_input("Username")
-                p = st.text_input("Password", type="password")
-                if st.form_submit_button("Login", type="primary"):
-                    rec = get_user_record(u)
-                    if rec and rec['Password'] == hash_password(p):
-                        if rec['PaymentStatus'] == "Paid":
-                            st.session_state.logged_in = True
-                            st.session_state.username = u
-                            st.rerun()
-                        else: st.warning("⏳ Payment verification pending. Admin approval ka intezaar karein.")
-                    else: st.error("Invalid credentials.")
-    else:
-        st.markdown('<p class="sub-title">संस्थागत स्तर का निफ्टी ऑप्शन बाइंग और ऑटोनॉमस इंटेलिजेंस कमांड सेंटर</p>', unsafe_allow_html=True)
-        public_menu = st.tabs(["📖 आर्किटेक्चर और गाइड", "💎 भुगतान", "📝 रजिस्टर", "🔐 लॉगिन"])
-        with public_menu[0]:
-            st.markdown('<p class="section-header">🏢 संस्थागत वास्तुकला और प्लेटफार्म अवलोकन</p>', unsafe_allow_html=True)
-            st.markdown("""
-            <div class="content-card">
-                <h3>1. प्लेटफॉर्म दर्शन और क्वांटिटेटिव फ्रेमवर्क</h3>
-                <p><b>डेल्टाकोर</b> को एक साधारण स्क्रिप्ट के रूप में नहीं, बल्कि एक <b>संस्थागत क्वांटिटेटिव फ्रेमवर्क</b> के रूप में डिज़ाइन किया गया है। यह लाइव चार्ट और ऑप्शन चेन डेटा को एक साथ जोड़कर आपको सटीक निर्णय लेने में मदद करता है।</p>
-            </div>
-            <div class="content-card">
-                <h3>2. हाइब्रिड इंटेलिजेंस इंजन और एआई पोस्ट-मॉर्टम</h3>
-                <p>यह इंजन लाइव चार्ट और PCR (Put-Call Ratio) का विश्लेषण करके सही स्ट्राइक, टारगेट और स्टॉप-लॉस सुझाता है। हर ट्रेड के बाद एआई एक्सप्लेनर रिपोर्ट जनरेट होती है।</p>
-            </div>
-            """, unsafe_allow_html=True)
-        with public_menu[1]:
             try: st.image("qr_code.png", width=200, caption="Gurudev Malakar (8319277922-1@nyes)")
-            except: pass
+            except: st.warning("⚠️ Place 'qr_code.png' in root folder.")
+            st.info("💡 **Instructions:** Payment karne ke baad apna UTR / Transaction ID registration form me daal kar register karein.")
+
         with public_menu[2]:
             st.markdown('<p class="section-header">📝 Create Account & Submit UTR</p>', unsafe_allow_html=True)
             with st.form("reg_en"):
@@ -574,12 +480,55 @@ if not st.session_state.logged_in and not st.session_state.get("admin_logged_in"
                             st.session_state.logged_in = True
                             st.session_state.username = u
                             st.rerun()
-                        else: st.warning("⏳ Payment verification pending. Admin approval ka intezaار karein.")
+                        else: st.warning("⏳ Payment verification pending. Admin approval ka intezaar karein.")
                     else: st.error("Invalid credentials.")
+    else:
+        st.markdown('<p class="sub-title">संस्थागत स्तर का निफ्टी ऑप्शन बाइंग और ऑटोनॉमस इंटेलिजेंस कमांड सेंटर</p>', unsafe_allow_html=True)
+        public_menu = st.tabs(["📖 आर्किटेक्चर", "💎 भुगतान और प्लान", "📝 रजिस्टर", "🔐 लॉगिन"])
+        
+        with public_menu[0]:
+            st.markdown('<p class="section-header">🏢 संस्थागत वास्तुकला और प्लेटफार्म अवलोकन</p>', unsafe_allow_html=True)
+            st.markdown("""
+            <div class="content-card">
+                <h3>1. प्लेटफॉर्म दर्शन</h3>
+                <p><b>डेल्टाकोर</b> एक संस्थागत क्वांटिटेटिव फ्रेमवर्क है जो निफ्टी ऑप्शन बायर्स के लिए डिजाइन किया गया है।</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+        with public_menu[1]:
+            st.markdown('<p class="section-header">💎 मेंबरशिप प्लान्स और क्यूआर भुगतान</p>', unsafe_allow_html=True)
+            try: st.image("qr_code.png", width=200, caption="Gurudev Malakar (8319277922-1@nyes)")
+            except: st.warning("⚠️ QR Code image not found.")
+            
+        with public_menu[2]:
+            st.markdown('<p class="section-header">📝 नया अकाउंट बनाएं और UTR जमा करें</p>', unsafe_allow_html=True)
+            with st.form("reg_hi"):
+                u = st.text_input("यूजरनेम (Username)")
+                p = st.text_input("पासवर्ड (Password)", type="password")
+                utr = st.text_input("यूपीआई यूटीआर नंबर (UTR Number)")
+                if st.form_submit_button("रजिस्टर करें", type="primary"):
+                    if not utr.strip():
+                        st.error("कृपया वैध UTR नंबर दर्ज करें।")
+                    else:
+                        ok, msg = register_pending_user(u.strip(), p.strip(), utr.strip())
+                        if ok: st.success(msg)
+                        else: st.error(msg)
+
+        with public_menu[3]:
+            st.markdown('<p class="section-header">🔐 सुरक्षित मेंबर लॉगिन</p>', unsafe_allow_html=True)
+            with st.form("log_hi"):
+                u = st.text_input("यूजरनेम (Username)")
+                p = st.text_input("पासवर्ड (Password)", type="password")
+                if st.form_submit_button("लॉगिन करें", type="primary"):
+                    rec = get_user_record(u)
+                    if rec and rec['Password'] == hash_password(p):
+                        if rec['PaymentStatus'] == "Paid":
+                            st.session_state.logged_in = True
+                            st.session_state.username = u
+                            st.rerun()
+                        else: st.warning("⏳ भुगतान सत्यापन लंबित है। एडमिन की मंजूरी का इंतजार करें।")
+                    else: st.error("गलत क्रेडेंशियल (Invalid credentials)।")
 else:
-    # ==========================================
-    # MAIN APP PORTAL (AFTER SUCCESSFUL LOGIN)
-    # ==========================================
     active_user = st.session_state.username if st.session_state.username else "admin"
     user_record = get_user_record(active_user)
     expiry_str = user_record['ExpiryDate'] if user_record else (datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d")
@@ -627,9 +576,6 @@ else:
 
     st.sidebar.markdown("---")
 
-    # ==========================================
-    # TAB 1: MASTER TRADING DESK
-    # ==========================================
     if menu == "🎯 Master Trading Desk":
         st.header("🎯 DeltaCore Hybrid Execution Desk")
         st.write("Live chart aur option chain analysis ke sath exact trade execution aur post-mortem explanation.")
@@ -759,9 +705,6 @@ else:
                         """, unsafe_allow_html=True)
                         st.balloons()
 
-    # ==========================================
-    # TAB 2: TRADING BLOG & INSIGHTS
-    # ==========================================
     elif menu == "📚 Trading Blog & Insights":
         st.header("📚 DeltaCore Intelligence & Feature Insights")
         st.markdown("""
@@ -774,17 +717,8 @@ else:
                 <li><b>Theta Decay & Time Management:</b> Measures duration risk against options time decay.</li>
             </ul>
         </div>
-
-        <div class="content-card">
-            <h3>⏱️ 1. Beating Theta Decay: Why the Live Trade Timer Matters</h3>
-            <p style="color: #94A3B8; font-size: 13px;">Published by Trading Psychology Desk</p>
-            <p>Time is an option buyer's primary adversary. DeltaCore's integrated duration timer tracks precise market exposure duration to safeguard against stagnation.</p>
-        </div>
         """, unsafe_allow_html=True)
 
-    # ==========================================
-    # TAB 3: REFER & EARN 25 DAYS FREE
-    # ==========================================
     elif menu == "🎁 Refer & Earn 25 Days Free":
         st.header("🎁 Refer & Earn: Get 25 Trading Days Free!")
         user_rec = get_user_record(active_user)
@@ -803,9 +737,6 @@ else:
             else:
                 st.warning("⚠️ Both checkboxes must be ticked.")
 
-    # ==========================================
-    # TAB 4: LIVE OPTION CHAIN
-    # ==========================================
     elif menu == "📊 Live Option Chain":
         st.header("⚡ Nifty Live Option Chain Matrix")
         if st.button("🔄 Refresh Option Chain Matrix", type="primary"):
@@ -818,9 +749,6 @@ else:
         else:
             st.info("👆 Click to load matrix.")
 
-    # ==========================================
-    # TAB 5: TRADE JOURNAL & P&L STATEMENT
-    # ==========================================
     elif menu == "📝 Trade Journal & P&L":
         st.header("📝 DeltaCore Performance Journal & Explanations")
         conn = sqlite3.connect(DB_NAME, timeout=10)
