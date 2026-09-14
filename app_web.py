@@ -430,7 +430,7 @@ if not st.session_state.logged_in and not st.session_state.get("admin_logged_in"
 
         with public_menu[1]:
             st.markdown('<p class="section-header">💎 Direct UPI QR Code Payment (Gurudev Malakar)</p>', unsafe_allow_html=True)
-            try: st.image("qr_code.png", width=200, caption="Gurudev Malakar (8319277922-1@nyes)")
+            try: st.image("ai iamage for app.jpeg", width=200, caption="Gurudev Malakar (8319277922-1@nyes)")
             except: st.warning("⚠️ Place 'qr_code.png' in root folder.")
         with public_menu[2]:
             st.markdown('<p class="section-header">📝 Create Account</p>', unsafe_allow_html=True)
