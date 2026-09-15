@@ -705,18 +705,26 @@ else:
             st.markdown("---")
 
             st.subheader("⚡ Live Trade Execution")
+
+            # Synchronized default values from Option Chain if available
+            default_strike = st.session_state.get("sync_strike", int(atm))
+            default_type_idx = 0 if st.session_state.get("sync_type", "CE") == ("CE" if is_bullish else "PE") else 1
+            default_buy = float(round(st.session_state.get("sync_entry", rec_entry), 2))
+            default_target = float(round(st.session_state.get("sync_target", rec_target), 2))
+            default_sl = float(round(st.session_state.get("sync_sl", rec_sl), 2))
+
             if not st.session_state.trade_active:
                 with st.form("trade_entry_form"):
                     col_1, col_2, col_3 = st.columns(3)
                     with col_1:
-                        exec_strike = st.number_input("Strike Price", min_value=10000, value=int(atm), step=50)
-                        exec_type = st.selectbox("Type", ["CE", "PE"], index=0 if is_bullish else 1)
+                        exec_strike = st.number_input("Strike Price", min_value=default_strike, value=int(atm), step=50)
+                        exec_type = st.selectbox("Type", ["CE", "PE"], index=default_type_idx if is_bullish else 1)
                     with col_2:
                         exec_lots = st.number_input("Lots", min_value=1, value=1, step=1)
-                        exec_buy = st.number_input("Buy Price (₹)", min_value=1.0, value=float(round(rec_entry, 2)), step=0.5)
+                        exec_buy = st.number_input("Buy Price (₹)", min_value=default_buy, value=float(round(rec_entry, 2)), step=0.5)
                     with col_3:
-                        exec_target = st.number_input("Target (₹)", min_value=1.0, value=float(round(rec_target, 2)), step=0.5)
-                        exec_sl = st.number_input("Stop-Loss (₹)", min_value=1.0, value=float(round(rec_sl, 2)), step=0.5)
+                        exec_target = st.number_input("Target (₹)", min_value=default_target, value=float(round(rec_target, 2)), step=0.5)
+                        exec_sl = st.number_input("Stop-Loss (₹)", min_value=default_sl, value=float(round(rec_sl, 2)), step=0.5)
 
                     if st.form_submit_button("🚀 Execute Hybrid Trade", type="primary"):
                         st.session_state.trade_active = True
@@ -835,6 +843,22 @@ else:
         
         support_level = atm_strike - 100 if is_bullish else atm_strike - 150
         resistance_level = atm_strike + 150 if is_bullish else atm_strike + 100
+
+        #support_level = atm_strike - 100 if is_bullish else atm_strike - 150
+        resistance_level = atm_strike + 150 if is_bullish else atm_strike + 100
+
+        # Yeh calculation yahan jod dein:
+        suggested_type = "CE" if is_bullish else "PE"
+        recommended_entry = max(35.0, 110.0 + (abs(change) * 0.35))
+        recommended_target = recommended_entry + 45.0
+        recommended_sl = recommended_entry - 25.0
+
+        # Save analysis values into session state for Master Desk synchronization
+        st.session_state["sync_strike"] = atm_strike
+        st.session_state["sync_type"] = suggested_type
+        st.session_state["sync_entry"] = recommended_entry
+        st.session_state["sync_target"] = recommended_target
+        st.session_state["sync_sl"] = recommended_sl
 
         # AI / Quantitative Insights Box
         st.markdown(f"""
