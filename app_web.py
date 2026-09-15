@@ -706,12 +706,21 @@ else:
 
             st.subheader("⚡ Live Trade Execution")
 
-            # Synchronized default values from Option Chain if available
-            default_strike = st.session_state.get("sync_strike", int(atm))
-            default_type_idx = 0 if st.session_state.get("sync_type", "CE") == ("CE" if is_bullish else "PE") else 1
-            default_buy = float(round(st.session_state.get("sync_entry", rec_entry), 2))
-            default_target = float(round(st.session_state.get("sync_target", rec_target), 2))
-            default_sl = float(round(st.session_state.get("sync_sl", rec_sl), 2))
+            # Synchronized default values from Option Chain with strict minimum safety check
+            raw_strike = st.session_state.get("sync_strike", int(atm))
+            default_strike = max(10000, int(raw_strike) if raw_strike is not None else 23000)
+            
+            raw_type = st.session_state.get("sync_type", "CE")
+            default_type_idx = 0 if raw_type == "CE" else 1
+            
+            raw_entry = st.session_state.get("sync_entry", rec_entry)
+            default_buy = float(round(max(1.0, raw_entry if raw_entry is not None else 100.0), 2))
+            
+            raw_target = st.session_state.get("sync_target", rec_target)
+            default_target = float(round(max(1.0, raw_target if raw_target is not None else 140.0), 2))
+            
+            raw_sl = st.session_state.get("sync_sl", rec_sl)
+            default_sl = float(round(max(1.0, raw_sl if raw_sl is not None else 80.0), 2))
 
             if not st.session_state.trade_active:
                 with st.form("trade_entry_form"):
