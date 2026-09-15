@@ -726,7 +726,7 @@ else:
                 with st.form("trade_entry_form"):
                     col_1, col_2, col_3 = st.columns(3)
                     with col_1:
-                        exec_strike = st.number_input("Strike Price", min_value=default_strike, value=int(atm), step=50)
+                        exec_strike = st.number_input("Strike Price", min_value=10000, value=max(10000, int(default_strike )), step=50)
                         exec_type = st.selectbox("Type", ["CE", "PE"], index=default_type_idx if is_bullish else 1)
                     with col_2:
                         exec_lots = st.number_input("Lots", min_value=1, value=1, step=1)
